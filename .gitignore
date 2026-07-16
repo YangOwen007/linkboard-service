@@ -1,0 +1,9 @@
+node_modules
+dist
+.env
+.env.test
+coverage
+.pnpm-store
+
+# Prisma client artifacts can be regenerated.
+prisma/generated
