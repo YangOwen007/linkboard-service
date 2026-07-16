@@ -4,6 +4,10 @@
   "private": true,
   "description": "Production-minded link-in-bio analytics service built with Fastify, TypeScript, Prisma, and PostgreSQL.",
   "packageManager": "pnpm@9.15.1",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.15.1"
+  },
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",

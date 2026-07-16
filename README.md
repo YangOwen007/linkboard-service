@@ -2,6 +2,13 @@
 
 `Linkboard Service` is a backend-focused portfolio project: a production-minded link-in-bio API with click analytics, admin endpoints, PostgreSQL persistence, validation, testing, Docker, and CI.
 
+## Portfolio Snapshot
+
+- Backend-focused API service, not a frontend CRUD app
+- Public profile delivery plus protected admin management
+- Event-style analytics persistence for click tracking
+- Production-minded setup with Docker, CI, env validation, and deployment notes
+
 ## Why This Project
 
 This service is designed to show backend engineering depth instead of frontend polish alone:
@@ -24,6 +31,15 @@ This service is designed to show backend engineering depth instead of frontend p
 - `Vitest` for API-focused tests
 - `Docker` and `docker-compose` for local infrastructure
 
+## What It Demonstrates
+
+- API design with public and internal/admin boundaries
+- Data modeling for profiles, links, and click events
+- Validation at both the request layer and environment layer
+- Basic access control with an admin API key
+- Structured error handling and operational health checks
+- Containerization and deployment workflow readiness
+
 ## MVP Features
 
 - `GET /health` for health checks
@@ -35,38 +51,90 @@ This service is designed to show backend engineering depth instead of frontend p
 - `PATCH /admin/links/:id` for protected link updates
 - `GET /admin/links/:slug/analytics` for protected click summaries
 
+## API Shape
+
+Public endpoints:
+
+- `GET /health`
+- `GET /profiles/:handle`
+- `POST /links/:slug/click`
+
+Admin endpoints:
+
+- `GET /admin/profiles`
+- `POST /admin/profiles`
+- `POST /admin/links`
+- `PATCH /admin/links/:id`
+- `GET /admin/links/:slug/analytics`
+
+Example requests:
+
+```bash
+curl http://localhost:3000/health
+```
+
+```bash
+curl http://localhost:3000/profiles/owenyang
+```
+
+```bash
+curl -X POST http://localhost:3000/links/github/click
+```
+
+```bash
+curl -H "x-api-key: your-admin-key" http://localhost:3000/admin/profiles
+```
+
 ## Local Setup
 
-1. Copy `.env.example` to `.env` and fill in secure values.
-2. Start PostgreSQL with Docker:
+1. Use Node `22+` and `pnpm`.
+2. Copy `.env.example` to `.env` and fill in secure values.
+3. Start PostgreSQL with Docker:
 
 ```bash
 docker compose up -d
 ```
 
-3. Install dependencies:
+4. Install dependencies:
 
 ```bash
 pnpm install
 ```
 
-4. Generate the Prisma client and apply migrations:
+5. Generate the Prisma client and apply migrations:
 
 ```bash
 pnpm prisma generate
 pnpm prisma migrate dev --name init
 ```
 
-5. Seed demo data:
+6. Seed demo data:
 
 ```bash
 pnpm prisma:seed
 ```
 
-6. Start the dev server:
+7. Start the dev server:
 
 ```bash
 pnpm dev
+```
+
+## Verification
+
+Run the most important checks with:
+
+```bash
+pnpm lint
+pnpm test
+pnpm build
+```
+
+If you want a full local smoke test after the server is running:
+
+```bash
+curl http://localhost:3000/health
+curl http://localhost:3000/profiles/owenyang
 ```
 
 ## Environment Variables
@@ -79,6 +147,14 @@ pnpm dev
 | `HOST` / `PORT` | Server bind settings |
 | `LOG_LEVEL` | Structured logging verbosity |
 
+## Data Model
+
+- `Profile`: the public identity for a linkboard page
+- `Link`: an ordered outbound destination attached to a profile
+- `ClickEvent`: a timestamped analytics event recorded for a link click
+
+This model is intentionally simple for an MVP, but it leaves room for future additions like per-profile API keys, rate limiting, aggregated analytics tables, or scheduled reporting jobs.
+
 ## Project Structure
 
 ```text
@@ -88,6 +164,7 @@ src/
   plugins/     Fastify plugins for auth and errors
   routes/      Public and admin HTTP routes
 prisma/
+  migrations/  Database migration history
   schema.prisma
   seed.ts
 ```
@@ -102,8 +179,23 @@ This project is a good fit for `Render` or `Railway`:
 - start command: `pnpm prisma migrate deploy && pnpm start`
 - `render.yaml` is included as a starter deployment config for Render
 
+## Roadmap
+
+- Rate limiting for analytics endpoints
+- Request logging enrichment or tracing IDs
+- OpenAPI docs
+- Aggregated analytics endpoint by date range
+- API key rotation or per-profile admin auth
+- Background job support for report generation
+
 ## Interview Story
 
 You can explain this project as:
 
 > I built a deployable backend service that manages public profile links and tracks click analytics. I designed the API, modeled the data in PostgreSQL, added access control, validation, logging, tests, Docker setup, and CI so it felt like a real service instead of a classroom CRUD app.
+
+## Why Recruiters Care
+
+- It shows backend system design choices, not just UI polish
+- It gives you concrete talking points for APIs, persistence, deployment, and operational readiness
+- It is small enough to understand fully, but serious enough to discuss like a real service
