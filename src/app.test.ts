@@ -121,4 +121,27 @@ describe("createApp", () => {
       })
     );
   });
+
+  it("accepts form-encoded click tracking requests from simple clients", async () => {
+    const app = createApp({ env: testEnv, prisma });
+    vi.mocked(prisma.link.findFirst).mockResolvedValue({ id: "link_456" });
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/links/github/click",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded"
+      },
+      payload: ""
+    });
+
+    expect(response.statusCode).toBe(202);
+    expect(prisma.clickEvent.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          linkId: "link_456"
+        })
+      })
+    );
+  });
 });

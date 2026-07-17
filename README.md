@@ -155,6 +155,8 @@ curl http://localhost:3000/profiles/owenyang
 
 This model is intentionally simple for an MVP, but it leaves room for future additions like per-profile API keys, rate limiting, aggregated analytics tables, or scheduled reporting jobs.
 
+Note: the included Docker setup maps PostgreSQL to host port `5433` so it does not conflict with an existing local Postgres instance or another project already using `5432`.
+
 ## Project Structure
 
 ```text

@@ -48,6 +48,17 @@ export function createApp(options: CreateAppOptions = {}) {
     prisma
   });
 
+  // PowerShell and some simple clients send form-encoded POSTs by default, so
+  // accept that content type even when a route does not need a request body.
+  app.addContentTypeParser(
+    "application/x-www-form-urlencoded",
+    { parseAs: "string" },
+    (_request, body, done) => {
+      const parsed = Object.fromEntries(new URLSearchParams(body));
+      done(null, parsed);
+    }
+  );
+
   app.register(errorHandlerPlugin);
   app.register(adminAuthPlugin);
   app.register(healthRoutes);
