@@ -1,4 +1,5 @@
 import Fastify from "fastify";
+import rateLimit from "@fastify/rate-limit";
 
 import { loadEnv, type AppEnv } from "./config/env.js";
 import { createPrismaClient } from "./lib/prisma.js";
@@ -23,23 +24,28 @@ type CreateAppOptions = {
 export function createApp(options: CreateAppOptions = {}) {
   const env = options.env ?? loadEnv();
   const prisma = options.prisma ?? createPrismaClient();
+  const loggerOptions = env.NODE_ENV === "test"
+    ? false
+    : env.NODE_ENV === "development"
+      ? {
+          level: env.LOG_LEVEL,
+          transport: {
+            target: "pino-pretty",
+            options: {
+              colorize: true,
+              translateTime: "SYS:standard"
+            }
+          }
+        }
+      : {
+          level: env.LOG_LEVEL
+        };
 
   // Create the server with structured logging so deployment platforms can ingest logs cleanly.
   const app = Fastify({
-    logger: env.NODE_ENV === "test"
-      ? false
-      : {
-          level: env.LOG_LEVEL,
-          transport: env.NODE_ENV === "development"
-            ? {
-                target: "pino-pretty",
-                options: {
-                  colorize: true,
-                  translateTime: "SYS:standard"
-                }
-              }
-            : undefined
-        }
+    logger: loggerOptions,
+    bodyLimit: 16 * 1024,
+    requestTimeout: 10000
   });
 
   // Store shared dependencies on the app instance to keep route modules small and testable.
@@ -54,12 +60,22 @@ export function createApp(options: CreateAppOptions = {}) {
     "application/x-www-form-urlencoded",
     { parseAs: "string" },
     (_request, body, done) => {
-      const parsed = Object.fromEntries(new URLSearchParams(body));
+      const rawBody = typeof body === "string" ? body : body.toString();
+      const parsed = Object.fromEntries(new URLSearchParams(rawBody));
       done(null, parsed);
     }
   );
 
   app.register(errorHandlerPlugin);
+  // In-memory limits suit one instance; forwarded headers are deliberately untrusted.
+  app.register(rateLimit, { max: 120, timeWindow: "1 minute" });
+  app.addHook("onSend", async (_request, reply) => {
+    reply.header("x-content-type-options", "nosniff");
+    reply.header("cache-control", "no-store");
+  });
+  app.addHook("onClose", async () => {
+    await prisma.$disconnect();
+  });
   app.register(adminAuthPlugin);
   app.register(healthRoutes);
   app.register(profileRoutes);

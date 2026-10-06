@@ -19,8 +19,7 @@
   },
   "include": [
     "src",
-    "prisma",
-    "vitest.config.ts"
+    "prisma"
   ],
   "exclude": [
     "dist",

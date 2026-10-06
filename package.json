@@ -2,39 +2,48 @@
   "name": "linkboard-service",
   "version": "0.1.0",
   "private": true,
-  "description": "Production-minded link-in-bio analytics service built with Fastify, TypeScript, Prisma, and PostgreSQL.",
+  "description": "HTTP API for public profile links and click-event analytics.",
   "packageManager": "pnpm@9.15.1",
   "engines": {
     "node": ">=22.0.0",
     "pnpm": ">=9.15.1"
   },
   "scripts": {
-    "dev": "tsx watch src/server.ts",
-    "build": "tsc -p tsconfig.json",
-    "start": "node dist/server.js",
+    "dev": "node --env-file-if-exists=.env --import tsx --watch src/server.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node --env-file-if-exists=.env dist/src/server.js",
+    "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "prisma:generate": "prisma generate",
     "prisma:migrate:dev": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
-    "prisma:seed": "tsx prisma/seed.ts"
+    "prisma:seed": "tsx prisma/seed.ts",
+    "test:integration": "node --env-file-if-exists=.env scripts/smoke.mjs",
+    "security:scan": "node scripts/secret-scan.mjs"
+  },
+  "pnpm": {
+    "overrides": {
+      "deepmerge-ts": "8.0.0"
+    }
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@prisma/client": "^6.11.1",
-    "fastify": "^5.0.0",
-    "fastify-plugin": "^5.0.1",
-    "pino-pretty": "^13.0.0",
-    "zod": "^4.0.5"
+    "@fastify/rate-limit": "^11.2.0",
+    "@prisma/client": "^6.19.3",
+    "fastify": "^5.12.5",
+    "fastify-plugin": "^5.1.0",
+    "pino-pretty": "^13.2.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@types/node": "^24.0.10",
-    "prisma": "^6.11.1",
-    "tsx": "^4.20.3",
-    "typescript": "^5.8.3",
-    "vitest": "^3.2.4"
+    "@types/node": "^24.19.1",
+    "prisma": "^6.19.3",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.11"
   }
 }

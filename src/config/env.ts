@@ -14,5 +14,17 @@ export type AppEnv = z.infer<typeof envSchema>;
 
 export function loadEnv(source: NodeJS.ProcessEnv = process.env): AppEnv {
   // Parse and validate configuration up front so the service fails fast on bad deploys.
-  return envSchema.parse(source);
+  const result = envSchema.safeParse(source);
+  if (!result.success) {
+    // Report field names only; configuration errors must not expose values.
+    throw new Error(`Invalid environment configuration: ${result.error.issues.map((issue) => issue.path.join(".")).join(", ")}`);
+  }
+  const env = result.data;
+  if (env.NODE_ENV === "production" && [env.ADMIN_API_KEY, env.IP_HASH_SALT].some((value) => value.length < 32 || value.startsWith("replace-with"))) {
+    throw new Error("Production ADMIN_API_KEY and IP_HASH_SALT require random values of at least 32 characters");
+  }
+  if (env.NODE_ENV === "production" && env.ADMIN_API_KEY === env.IP_HASH_SALT) {
+    throw new Error("Production ADMIN_API_KEY and IP_HASH_SALT must differ");
+  }
+  return env;
 }

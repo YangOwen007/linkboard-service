@@ -10,5 +10,5 @@ export type AppDependencies = {
 // This narrowed Prisma shape makes it easier to stub route behavior in tests.
 export type PrismaClientLike = Pick<
   PrismaClient,
-  "profile" | "link" | "clickEvent" | "$connect" | "$disconnect"
+  "profile" | "link" | "clickEvent" | "$connect" | "$disconnect" | "$queryRaw"
 >;

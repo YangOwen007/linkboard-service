@@ -3,6 +3,16 @@ import { z } from "zod";
 
 import { hashIpAddress } from "../lib/security.js";
 
+function referrerOrigin(value: string | undefined) {
+  // Drop paths, queries and credentials; referrer URLs can contain private tokens.
+  try {
+    const url = new URL(value ?? "");
+    return ["http:", "https:"].includes(url.protocol) ? url.origin : null;
+  } catch {
+    return null;
+  }
+}
+
 const profileParamsSchema = z.object({
   handle: z.string().min(2).max(40)
 });
@@ -69,16 +79,12 @@ export const profileRoutes: FastifyPluginAsync = async (app) => {
       });
     }
 
-    const forwardedFor = request.headers["x-forwarded-for"];
-    const ipSource = Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor;
-    const rawIp = ipSource?.split(",")[0]?.trim() ?? request.ip;
-
     await app.dependencies.prisma.clickEvent.create({
       data: {
         linkId: link.id,
-        referrer: request.headers.referer,
-        userAgent: request.headers["user-agent"],
-        ipHash: hashIpAddress(rawIp, app.dependencies.env.IP_HASH_SALT)
+        referrer: referrerOrigin(request.headers.referer),
+        userAgent: request.headers["user-agent"]?.slice(0, 256) ?? null,
+        ipHash: hashIpAddress(request.ip, app.dependencies.env.IP_HASH_SALT) ?? null
       }
     });
 
