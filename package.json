@@ -5,7 +5,7 @@
   "description": "HTTP API for public profile links and click-event analytics.",
   "packageManager": "pnpm@9.15.1",
   "engines": {
-    "node": ">=22.0.0",
+    "node": "^22.12.0 || ^24.0.0",
     "pnpm": ">=9.15.1"
   },
   "scripts": {

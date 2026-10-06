@@ -18,7 +18,7 @@ Requests flow through Fastify, access control (for `/admin`), Zod validation, an
 
 ## Requirements and local setup
 
-Use Node.js 22 or 24, pnpm **9.15.1**, and Docker Desktop with Linux containers. PostgreSQL 16 is the tested database. The pinned package manager and lockfile are used in Docker and CI.
+Use Node.js **22.12+ within version 22**, or **24**, pnpm **9.15.1**, and Docker Desktop with Linux containers. PostgreSQL 16 is the tested database. The pinned package manager and lockfile are used in Docker and CI.
 
 PowerShell, from the repository directory:
 

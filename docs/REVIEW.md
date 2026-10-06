@@ -25,6 +25,7 @@ Review performed October 6, 2026. This records observed behavior, not a guarante
 - Gitleaks v8.30.0 scanned reachable Git history with redacted output. One historical documentation placeholder (`your-admin-key`) was verified and excluded by its exact fingerprint; rerun found no leaks. The lightweight scanner also checks working files and compiled output. Neither scanner proves secrets absent.
 - Render Blueprint validated against `https://render.com/schema/render.yaml.json` using `pnpm dlx ajv-cli validate --strict=false --spec=draft2020 -s <downloaded-schema> -d render.yaml`. URI-format warnings were emitted by the validator; no invalid fields were reported. Render account/provisioning validation remains outstanding.
 - GitHub API confirmed the public repository, its content, empty homepage/license/releases, recent failed runs, and the updated description/topics. Browser rendering could not be inspected: the local browser kernel failed during sandbox ACL setup. There is no frontend, so mobile/accessibility UI testing is not applicable.
+- The published application CI for commit `fae5c36` passed every step: [verified run](https://github.com/YangOwen007/linkboard-service/actions/runs/37487938964). Subsequent commits must be checked separately; a successful Dependabot maintenance run is not application CI evidence.
 
 ## Warnings and practical limits
 
